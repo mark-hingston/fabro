@@ -1,13 +1,14 @@
 use fabro_types::settings::InterpString;
 use fabro_types::settings::run::{
-    ArtifactsSettings, DaytonaDockerfileLayer, DaytonaSandboxLayer, DaytonaSettings,
-    DaytonaSnapshotSettings, DockerfileSource, GitAuthorSettings, HookAgentMarker, HookDefinition,
-    HookEntry, HookTlsMode, HookType, InterviewProviderLayer, InterviewProviderSettings,
-    InterviewsLayer, LocalSandboxSettings, McpEntryLayer, McpServerSettings, McpTransport,
-    MergeStrategy, ModelRefOrSplice, NotificationProviderLayer, NotificationProviderSettings,
-    NotificationRouteLayer, NotificationRouteSettings, PullRequestSettings, RunAgentLayer,
-    RunAgentSettings, RunArtifactsLayer, RunCheckpointLayer, RunCheckpointSettings,
-    RunExecutionLayer, RunExecutionSettings, RunGitLayer, RunGitSettings, RunGoal, RunGoalLayer,
+    AcpEntryLayer, AcpServerSettings, ArtifactsSettings, DaytonaDockerfileLayer,
+    DaytonaSandboxLayer, DaytonaSettings, DaytonaSnapshotSettings, DockerfileSource,
+    GitAuthorSettings, HookAgentMarker, HookDefinition, HookEntry, HookTlsMode, HookType,
+    InterviewProviderLayer, InterviewProviderSettings, InterviewsLayer, LocalSandboxSettings,
+    McpEntryLayer, McpServerSettings, McpTransport, MergeStrategy, ModelRefOrSplice,
+    NotificationProviderLayer, NotificationProviderSettings, NotificationRouteLayer,
+    NotificationRouteSettings, PullRequestSettings, RunAgentLayer, RunAgentSettings,
+    RunArtifactsLayer, RunCheckpointLayer, RunCheckpointSettings, RunExecutionLayer,
+    RunExecutionSettings, RunGitLayer, RunGitSettings, RunGoal, RunGoalLayer,
     RunInterviewsSettings, RunLayer, RunModelLayer, RunModelSettings, RunPrepareLayer,
     RunPrepareSettings, RunPullRequestLayer, RunSandboxLayer, RunSandboxSettings, RunScmLayer,
     RunScmSettings, RunSettings, ScmGitHubSettings, StringOrSplice, TlsMode,
@@ -268,6 +269,11 @@ fn resolve_agent(agent: Option<&RunAgentLayer>) -> RunAgentSettings {
             .iter()
             .map(|(name, entry)| (name.clone(), resolve_mcp_entry(name, entry)))
             .collect(),
+        acps:        agent
+            .acps
+            .iter()
+            .map(|(name, entry)| (name.clone(), resolve_acp_entry(name, entry)))
+            .collect(),
     }
 }
 
@@ -347,6 +353,12 @@ fn resolve_mcp_command(
     command
         .map(|command| command.iter().map(InterpString::as_source).collect())
         .unwrap_or_default()
+}
+
+pub(crate) fn resolve_acp_entry(name: &str, entry: &AcpEntryLayer) -> AcpServerSettings {
+    let mut settings = AcpServerSettings::from(entry.clone());
+    settings.name = name.to_string();
+    settings
 }
 
 fn resolve_hook(hook: &HookEntry, index: usize, errors: &mut Vec<ResolveError>) -> HookDefinition {

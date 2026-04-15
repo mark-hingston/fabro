@@ -287,6 +287,8 @@ fn combine_run_agent(lower: RunAgentLayer, higher: RunAgentLayer) -> RunAgentLay
         permissions: higher.permissions.or(lower.permissions),
         // MCP entries: field-merge per key. Higher replaces lower for same keys.
         mcps:        merge_string_map_sticky(lower.mcps, higher.mcps),
+        // ACP entries: field-merge per key. Higher replaces lower for same keys.
+        acps:        merge_string_map_sticky(lower.acps, higher.acps),
     }
 }
 
@@ -380,6 +382,7 @@ fn combine_cli_exec_agent(
     CliExecAgentLayer {
         permissions: higher.permissions.or(lower.permissions),
         mcps:        merge_string_map_sticky(lower.mcps, higher.mcps),
+        acps:        merge_string_map_sticky(lower.acps, higher.acps),
     }
 }
 

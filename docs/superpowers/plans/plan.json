@@ -1,0 +1,9 @@
+{
+  "ticket_key": "fabro-93",
+  "plan_path": "docs/superpowers/plans/plan.md",
+  "planning_mode": "full",
+  "track": "System Track",
+  "implementation_readiness": "PASS",
+  "track_rationale": "New protocol, new crate, new dependency, cross-cutting integration points — requires full plan depth.",
+  "readiness_rationale": "All files, schemas, and integration points are identified. The official Rust SDK exists on crates.io. No unknowns remain."
+}

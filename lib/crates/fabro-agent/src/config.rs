@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use fabro_acp::config::AcpServerSettings;
 use fabro_llm::types::ReasoningEffort;
 use fabro_mcp::config::McpServerSettings;
 
@@ -86,6 +87,8 @@ pub struct SessionOptions {
     pub skill_dirs: Option<Vec<String>>,
     /// MCP server configurations to connect to on session startup.
     pub mcp_servers: Vec<McpServerSettings>,
+    /// ACP server configurations to connect to on session startup.
+    pub acp_servers: Vec<AcpServerSettings>,
     /// Wall-clock timeout for the entire `process_input` call.
     /// When set, the session's cancel token is triggered after this duration.
     pub wall_clock_timeout: Option<Duration>,
@@ -123,6 +126,7 @@ impl std::fmt::Debug for SessionOptions {
             .field("compaction_preserve_turns", &self.compaction_preserve_turns)
             .field("skill_dirs", &self.skill_dirs)
             .field("mcp_servers", &self.mcp_servers.len())
+            .field("acp_servers", &self.acp_servers.len())
             .field("wall_clock_timeout", &self.wall_clock_timeout)
             .finish()
     }
@@ -151,6 +155,7 @@ impl Default for SessionOptions {
             compaction_preserve_turns: 6,
             skill_dirs: None,
             mcp_servers: Vec::new(),
+            acp_servers: Vec::new(),
             wall_clock_timeout: None,
         }
     }

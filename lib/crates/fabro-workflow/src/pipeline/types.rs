@@ -216,6 +216,7 @@ pub struct LlmSpec {
     pub provider:       Provider,
     pub fallback_chain: Vec<FallbackTarget>,
     pub mcp_servers:    Vec<McpServerSettings>,
+    pub acp_servers:    Vec<fabro_acp::config::AcpServerSettings>,
     pub dry_run:        bool,
 }
 

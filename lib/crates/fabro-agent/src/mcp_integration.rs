@@ -14,6 +14,7 @@ pub fn make_mcp_tools(manager: &Arc<McpConnectionManager>) -> Vec<RegisteredTool
         .map(|(qualified_name, info)| {
             let mgr = Arc::clone(manager);
             let name = qualified_name.clone();
+            #[allow(clippy::duration_suboptimal_units)]
             let tool_timeout = std::time::Duration::from_secs(120);
 
             RegisteredTool {

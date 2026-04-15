@@ -38,12 +38,13 @@ pub use model_ref::{
 pub use project::{ProjectLayer, ProjectSettings};
 pub use resolved::Settings;
 pub use run::{
-    ArtifactsSettings, DaytonaSettings, DaytonaSnapshotSettings, DockerfileSource,
-    GitAuthorSettings, HookDefinition, HookType, InterviewProviderSettings, McpServerSettings,
-    McpTransport, NotificationProviderSettings, NotificationRouteSettings, PullRequestSettings,
-    RunAgentSettings, RunCheckpointSettings, RunExecutionSettings, RunGitSettings, RunGoal,
-    RunInterviewsSettings, RunLayer, RunModelSettings, RunPrepareSettings, RunSandboxSettings,
-    RunScmSettings, RunSettings, ScmGitHubSettings, TlsMode,
+    AcpEntryLayer, AcpServerSettings, AcpTransport, ArtifactsSettings, DaytonaSettings,
+    DaytonaSnapshotSettings, DockerfileSource, GitAuthorSettings, HookDefinition, HookType,
+    InterviewProviderSettings, McpServerSettings, McpTransport, NotificationProviderSettings,
+    NotificationRouteSettings, PullRequestSettings, RunAgentSettings, RunCheckpointSettings,
+    RunExecutionSettings, RunGitSettings, RunGoal, RunInterviewsSettings, RunLayer,
+    RunModelSettings, RunPrepareSettings, RunSandboxSettings, RunScmSettings, RunSettings,
+    ScmGitHubSettings, TlsMode,
 };
 pub use server::{
     DiscordIntegrationSettings, GithubIntegrationSettings, IntegrationWebhooksSettings,

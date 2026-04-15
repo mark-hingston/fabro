@@ -403,6 +403,7 @@ impl RunSession {
                 provider: provider_enum,
                 fallback_chain,
                 mcp_servers,
+                acp_servers: Vec::new(),
                 dry_run: resolved.execution.mode == RunMode::DryRun,
             },
             interviewer,

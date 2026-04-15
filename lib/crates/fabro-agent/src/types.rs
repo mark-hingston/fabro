@@ -204,6 +204,14 @@ pub enum AgentEvent {
         server_name: String,
         error:       String,
     },
+    AcpServerReady {
+        server_name: String,
+        agent_name:  String,
+    },
+    AcpServerFailed {
+        server_name: String,
+        error:       String,
+    },
 }
 
 impl AgentEvent {
@@ -404,6 +412,25 @@ impl AgentEvent {
                     server = server_name.as_str(),
                     error,
                     "MCP server failed"
+                );
+            }
+            Self::AcpServerReady {
+                server_name,
+                agent_name,
+            } => {
+                info!(
+                    session_id,
+                    server = server_name.as_str(),
+                    agent = agent_name.as_str(),
+                    "ACP server ready"
+                );
+            }
+            Self::AcpServerFailed { server_name, error } => {
+                error!(
+                    session_id,
+                    server = server_name.as_str(),
+                    error,
+                    "ACP server failed"
                 );
             }
         }

@@ -90,6 +90,22 @@ fn resolve_exec(exec: Option<&CliExecLayer>) -> CliExecSettings {
                         .collect()
                 })
                 .unwrap_or_default(),
+            acps:        exec
+                .agent
+                .as_ref()
+                .map(|agent| {
+                    agent
+                        .acps
+                        .iter()
+                        .map(|(name, entry)| {
+                            (
+                                name.clone(),
+                                super::run::resolve_acp_entry(name.as_str(), entry),
+                            )
+                        })
+                        .collect()
+                })
+                .unwrap_or_default(),
         },
     }
 }

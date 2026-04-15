@@ -24,6 +24,7 @@ workspace = true
 [dependencies]
 clap.workspace = true
 anyhow.workspace = true
+fabro-acp = { path = "../fabro-acp" }
 fabro-config = { path = "../fabro-config", features = ["clap"] }
 fabro-types = { path = "../fabro-types" }
 fabro-llm = { path = "../fabro-llm" }

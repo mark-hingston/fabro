@@ -156,3 +156,17 @@ pub struct AgentMcpFailedProps {
     pub error:       String,
     pub visit:       u32,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AgentAcpReadyProps {
+    pub server_name: String,
+    pub agent_name:  String,
+    pub visit:       u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AgentAcpFailedProps {
+    pub server_name: String,
+    pub error:       String,
+    pub visit:       u32,
+}

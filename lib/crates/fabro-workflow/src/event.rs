@@ -1210,6 +1210,8 @@ pub fn event_name(event: &Event) -> &'static str {
             AgentEvent::SubAgentClosed { .. } => "agent.sub.closed",
             AgentEvent::McpServerReady { .. } => "agent.mcp.ready",
             AgentEvent::McpServerFailed { .. } => "agent.mcp.failed",
+            AgentEvent::AcpServerReady { .. } => "agent.acp.ready",
+            AgentEvent::AcpServerFailed { .. } => "agent.acp.failed",
         },
         Event::SubgraphStarted { .. } => "subgraph.started",
         Event::SubgraphCompleted { .. } => "subgraph.completed",
@@ -2044,6 +2046,21 @@ fn event_body_from_event(event: &Event) -> EventBody {
             }),
             AgentEvent::McpServerFailed { server_name, error } => {
                 EventBody::AgentMcpFailed(fabro_types::AgentMcpFailedProps {
+                    server_name: server_name.clone(),
+                    error:       error.clone(),
+                    visit:       *visit,
+                })
+            }
+            AgentEvent::AcpServerReady {
+                server_name,
+                agent_name,
+            } => EventBody::AgentAcpReady(fabro_types::AgentAcpReadyProps {
+                server_name: server_name.clone(),
+                agent_name:  agent_name.clone(),
+                visit:       *visit,
+            }),
+            AgentEvent::AcpServerFailed { server_name, error } => {
+                EventBody::AgentAcpFailed(fabro_types::AgentAcpFailedProps {
                     server_name: server_name.clone(),
                     error:       error.clone(),
                     visit:       *visit,

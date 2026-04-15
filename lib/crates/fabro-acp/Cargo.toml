@@ -1,0 +1,29 @@
+[package]
+name = "fabro-acp"
+edition.workspace = true
+version.workspace = true
+publish = false
+license.workspace = true
+description = "ACP (Agent Client Protocol) client for delegating work to ACP-compatible coding agents"
+
+[lib]
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+agent-client-protocol = "0.10"
+anyhow.workspace = true
+async-trait.workspace = true
+fabro-types = { path = "../fabro-types" }
+futures.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["process"] }
+tokio-util = { workspace = true, features = ["compat"] }
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }

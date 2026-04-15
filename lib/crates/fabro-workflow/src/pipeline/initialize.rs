@@ -325,6 +325,7 @@ async fn build_registry(
             let provider = spec.provider;
             let fallback_chain = spec.fallback_chain.clone();
             let mcp_servers = spec.mcp_servers.clone();
+            let acp_servers = spec.acp_servers.clone();
             let client = result.client;
             let registry = Arc::new(default_registry(interviewer, move || {
                 let api = resolver
@@ -347,7 +348,8 @@ async fn build_registry(
                         },
                     )
                     .with_env(env.clone())
-                    .with_mcp_servers(mcp_servers.clone());
+                    .with_mcp_servers(mcp_servers.clone())
+                    .with_acp_servers(acp_servers.clone());
                 let cli = resolver
                     .clone()
                     .map_or_else(
@@ -906,6 +908,7 @@ mod tests {
                 provider:       fabro_llm::Provider::Anthropic,
                 fallback_chain: Vec::new(),
                 mcp_servers:    Vec::new(),
+                acp_servers:    Vec::new(),
                 dry_run:        true,
             },
             interviewer: Arc::new(AutoApproveInterviewer),
@@ -976,6 +979,7 @@ mod tests {
                 provider:       fabro_llm::Provider::Anthropic,
                 fallback_chain: Vec::new(),
                 mcp_servers:    Vec::new(),
+                acp_servers:    Vec::new(),
                 dry_run:        false,
             },
             Arc::new(AutoApproveInterviewer),
@@ -1021,6 +1025,7 @@ mod tests {
                 provider:       fabro_llm::Provider::Anthropic,
                 fallback_chain: Vec::new(),
                 mcp_servers:    Vec::new(),
+                acp_servers:    Vec::new(),
                 dry_run:        true,
             },
             interviewer: Arc::new(AutoApproveInterviewer),
@@ -1090,6 +1095,7 @@ mod tests {
                 provider:       fabro_llm::Provider::Anthropic,
                 fallback_chain: Vec::new(),
                 mcp_servers:    Vec::new(),
+                acp_servers:    Vec::new(),
                 dry_run:        true,
             },
             interviewer: Arc::new(AutoApproveInterviewer),
@@ -1151,6 +1157,7 @@ mod tests {
                 provider:       fabro_llm::Provider::Anthropic,
                 fallback_chain: Vec::new(),
                 mcp_servers:    Vec::new(),
+                acp_servers:    Vec::new(),
                 dry_run:        true,
             },
             interviewer: Arc::new(AutoApproveInterviewer),
