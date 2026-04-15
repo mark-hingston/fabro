@@ -10,7 +10,9 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use super::interp::InterpString;
-use super::run::{AgentPermissions, McpEntryLayer, McpServerSettings};
+use super::run::{
+    AcpEntryLayer, AcpServerSettings, AgentPermissions, McpEntryLayer, McpServerSettings,
+};
 
 /// A structurally resolved `[cli]` view for consumers.
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
@@ -64,6 +66,7 @@ pub struct CliExecModelSettings {
 pub struct CliExecAgentSettings {
     pub permissions: Option<AgentPermissions>,
     pub mcps:        HashMap<String, McpServerSettings>,
+    pub acps:        HashMap<String, AcpServerSettings>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
@@ -174,6 +177,9 @@ pub struct CliExecAgentLayer {
     /// Agent-scoped MCP entries for `fabro exec`.
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub mcps:        HashMap<String, McpEntryLayer>,
+    /// Agent-scoped ACP entries for `fabro exec`.
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub acps:        HashMap<String, AcpEntryLayer>,
 }
 
 /// `[cli.output]` — generic CLI output defaults.

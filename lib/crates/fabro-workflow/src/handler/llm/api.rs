@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
+use fabro_acp::config::AcpServerSettings;
 use fabro_agent::subagent::{SessionFactory, SubAgentManager};
 use fabro_agent::{
     AgentEvent, AgentProfile, AnthropicProfile, GeminiProfile, OpenAiProfile, Sandbox, Session,
@@ -182,6 +183,7 @@ pub struct AgentApiBackend {
     sessions:       Mutex<HashMap<String, Session>>,
     env:            HashMap<String, String>,
     mcp_servers:    Vec<McpServerSettings>,
+    acp_servers:    Vec<AcpServerSettings>,
     resolver:       Option<CredentialResolver>,
 }
 
@@ -200,6 +202,7 @@ impl AgentApiBackend {
             sessions: Mutex::new(HashMap::new()),
             env: HashMap::new(),
             mcp_servers: Vec::new(),
+            acp_servers: Vec::new(),
             resolver: Some(resolver),
         }
     }
@@ -217,6 +220,7 @@ impl AgentApiBackend {
             sessions: Mutex::new(HashMap::new()),
             env: HashMap::new(),
             mcp_servers: Vec::new(),
+            acp_servers: Vec::new(),
             resolver: None,
         }
     }
@@ -230,6 +234,12 @@ impl AgentApiBackend {
     #[must_use]
     pub fn with_mcp_servers(mut self, servers: Vec<McpServerSettings>) -> Self {
         self.mcp_servers = servers;
+        self
+    }
+
+    #[must_use]
+    pub fn with_acp_servers(mut self, servers: Vec<AcpServerSettings>) -> Self {
+        self.acp_servers = servers;
         self
     }
 
@@ -253,6 +263,7 @@ impl AgentApiBackend {
             &self.env,
             tool_hooks,
             self.mcp_servers.clone(),
+            self.acp_servers.clone(),
         )
         .await
     }
@@ -266,6 +277,7 @@ impl AgentApiBackend {
         env: &HashMap<String, String>,
         tool_hooks: Option<Arc<dyn fabro_agent::ToolHookCallback>>,
         mcp_servers: Vec<McpServerSettings>,
+        acp_servers: Vec<AcpServerSettings>,
     ) -> Result<Session, Error> {
         let client = build_llm_client(resolver).await?.client;
 
@@ -277,6 +289,7 @@ impl AgentApiBackend {
             speed: node.speed().map(String::from),
             tool_hooks,
             mcp_servers,
+            acp_servers,
             ..SessionOptions::default()
         };
 
@@ -593,6 +606,7 @@ impl CodergenBackend for AgentApiBackend {
                         &self.env,
                         tool_hooks.clone(),
                         self.mcp_servers.clone(),
+                        self.acp_servers.clone(),
                     )
                     .await
                     {

@@ -205,6 +205,7 @@ pub struct InterviewProviderSettings {
 pub struct RunAgentSettings {
     pub permissions: Option<AgentPermissions>,
     pub mcps:        HashMap<String, McpServerSettings>,
+    pub acps:        HashMap<String, AcpServerSettings>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -257,6 +258,99 @@ pub enum McpTransport {
         port:    u16,
         env:     HashMap<String, String>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum AcpTransport {
+    Stdio {
+        command: Vec<String>,
+        #[serde(default)]
+        env:     HashMap<String, String>,
+    },
+    Http {
+        url:     String,
+        #[serde(default)]
+        headers: HashMap<String, String>,
+    },
+    Sandbox {
+        command: Vec<String>,
+        port:    u16,
+        #[serde(default)]
+        env:     HashMap<String, String>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AcpServerSettings {
+    pub name:                 String,
+    pub transport:            AcpTransport,
+    #[serde(default = "default_acp_startup_timeout")]
+    pub startup_timeout_secs: u64,
+    #[serde(default = "default_acp_prompt_timeout")]
+    pub prompt_timeout_secs:  u64,
+}
+
+fn default_acp_startup_timeout() -> u64 {
+    10
+}
+
+fn default_acp_prompt_timeout() -> u64 {
+    120
+}
+
+impl Default for AcpServerSettings {
+    fn default() -> Self {
+        Self {
+            name:                 String::new(),
+            transport:            AcpTransport::Stdio {
+                command: Vec::new(),
+                env:     HashMap::new(),
+            },
+            startup_timeout_secs: default_acp_startup_timeout(),
+            prompt_timeout_secs:  default_acp_prompt_timeout(),
+        }
+    }
+}
+
+impl AcpServerSettings {
+    #[must_use]
+    pub fn startup_timeout(&self) -> StdDuration {
+        StdDuration::from_secs(self.startup_timeout_secs)
+    }
+
+    #[must_use]
+    pub fn prompt_timeout(&self) -> StdDuration {
+        StdDuration::from_secs(self.prompt_timeout_secs)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AcpEntryLayer {
+    pub name:                 String,
+    #[serde(flatten)]
+    pub transport:            AcpTransport,
+    #[serde(default)]
+    pub enabled:              Option<bool>,
+    #[serde(default)]
+    pub startup_timeout_secs: Option<u64>,
+    #[serde(default)]
+    pub prompt_timeout_secs:  Option<u64>,
+}
+
+impl From<AcpEntryLayer> for AcpServerSettings {
+    fn from(entry: AcpEntryLayer) -> Self {
+        Self {
+            name:                 entry.name,
+            transport:            entry.transport,
+            startup_timeout_secs: entry
+                .startup_timeout_secs
+                .unwrap_or(default_acp_startup_timeout()),
+            prompt_timeout_secs:  entry
+                .prompt_timeout_secs
+                .unwrap_or(default_acp_prompt_timeout()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Default, Serialize)]
@@ -783,7 +877,7 @@ pub struct InterviewProviderLayer {
     pub channel: Option<InterpString>,
 }
 
-/// `[run.agent]` — agent knobs only (permissions, MCPs).
+/// `[run.agent]` — agent knobs only (permissions, MCPs, ACPs).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RunAgentLayer {
@@ -792,6 +886,9 @@ pub struct RunAgentLayer {
     /// Agent-scoped MCP server entries, keyed by name.
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub mcps:        HashMap<String, McpEntryLayer>,
+    /// Agent-scoped ACP server entries, keyed by name.
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub acps:        HashMap<String, AcpEntryLayer>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

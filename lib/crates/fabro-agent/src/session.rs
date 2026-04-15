@@ -2,6 +2,7 @@ use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
 use std::time::SystemTime;
 
+use fabro_acp::connection_manager::parse_qualified_name as acp_parse_qualified_name;
 use fabro_llm::client::Client;
 use fabro_llm::error::ProviderErrorKind;
 use fabro_llm::generate::StreamAccumulator;
@@ -26,7 +27,6 @@ use crate::event::Emitter;
 use crate::file_tracker::FileTracker;
 use crate::history::History;
 use crate::loop_detection::detect_loop;
-use crate::mcp_integration;
 use crate::memory::discover_memory;
 use crate::profiles::EnvContext;
 use crate::sandbox::Sandbox;
@@ -36,6 +36,7 @@ use crate::skills::{
 use crate::subagent::{SubAgentCallbackEvent, SubAgentEventCallback, SubAgentManager};
 use crate::tool_execution::execute_tool_calls;
 use crate::types::{AgentEvent, SessionEvent, SessionState, Turn};
+use crate::{acp_integration, mcp_integration};
 
 pub struct Session {
     id:               String,
@@ -57,6 +58,7 @@ pub struct Session {
     file_tracker:     FileTracker,
     tool_env:         Option<HashMap<String, String>>,
     subagent_manager: Option<Arc<AsyncMutex<SubAgentManager>>>,
+    acp_runner:       Option<acp_integration::AcpRunner>,
 }
 
 impl Session {
@@ -88,6 +90,7 @@ impl Session {
             file_tracker: FileTracker::default(),
             tool_env: None,
             subagent_manager,
+            acp_runner: None,
         }
     }
 
@@ -178,6 +181,46 @@ impl Session {
                     profile.tool_registry_mut().register(tool);
                 }
             }
+        }
+
+        // Start ACP servers and register their tools
+        if !self.config.acp_servers.is_empty() {
+            let (runner, agent_names, results) =
+                acp_integration::start_acp_servers(self.config.acp_servers.clone()).await;
+
+            for (server_name, result) in &results {
+                match result {
+                    Ok(_) => {
+                        let agent_name = agent_names
+                            .iter()
+                            .find(|n| n.starts_with(&format!("acp__{server_name}__")))
+                            .and_then(|n| acp_parse_qualified_name(n).map(|(_, a)| a))
+                            .unwrap_or_else(|| "agent".to_string());
+                        self.event_emitter
+                            .emit(self.id.clone(), AgentEvent::AcpServerReady {
+                                server_name: server_name.clone(),
+                                agent_name,
+                            });
+                    }
+                    Err(e) => {
+                        self.event_emitter
+                            .emit(self.id.clone(), AgentEvent::AcpServerFailed {
+                                server_name: server_name.clone(),
+                                error:       e.clone(),
+                            });
+                    }
+                }
+            }
+
+            if !agent_names.is_empty() {
+                let acp_tools = acp_integration::make_acp_tools(&runner.handle(), agent_names);
+                if let Some(profile) = Arc::get_mut(&mut self.provider_profile) {
+                    for tool in acp_tools {
+                        profile.tool_registry_mut().register(tool);
+                    }
+                }
+            }
+            self.acp_runner = Some(runner);
         }
 
         // Populate environment context
@@ -2534,6 +2577,7 @@ mod tests {
     async fn mcp_end_to_end_tool_call() {
         use std::collections::HashMap;
 
+        use fabro_acp::connection_manager::parse_qualified_name as acp_parse_qualified_name;
         use fabro_mcp::config::{McpServerSettings, McpTransport};
 
         let test_server = format!(

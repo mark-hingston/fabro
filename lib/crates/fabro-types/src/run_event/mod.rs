@@ -206,6 +206,10 @@ pub enum EventBody {
     AgentMcpReady(AgentMcpReadyProps),
     #[serde(rename = "agent.mcp.failed")]
     AgentMcpFailed(AgentMcpFailedProps),
+    #[serde(rename = "agent.acp.ready")]
+    AgentAcpReady(AgentAcpReadyProps),
+    #[serde(rename = "agent.acp.failed")]
+    AgentAcpFailed(AgentAcpFailedProps),
     #[serde(rename = "subgraph.started")]
     SubgraphStarted(SubgraphStartedProps),
     #[serde(rename = "subgraph.completed")]
@@ -415,6 +419,8 @@ impl EventBody {
             Self::AgentSubClosed(_) => "agent.sub.closed",
             Self::AgentMcpReady(_) => "agent.mcp.ready",
             Self::AgentMcpFailed(_) => "agent.mcp.failed",
+            Self::AgentAcpReady(_) => "agent.acp.ready",
+            Self::AgentAcpFailed(_) => "agent.acp.failed",
             Self::SubgraphStarted(_) => "subgraph.started",
             Self::SubgraphCompleted(_) => "subgraph.completed",
             Self::SandboxInitializing(_) => "sandbox.initializing",

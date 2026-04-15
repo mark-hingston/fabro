@@ -1,6 +1,7 @@
 #[cfg(feature = "docker")]
 pub mod docker_sandbox;
 
+pub mod acp_integration;
 pub mod agent_profile;
 pub mod cli;
 pub mod compaction;
@@ -26,12 +27,14 @@ pub mod truncation;
 pub mod types;
 pub mod v4a_patch;
 
+pub use acp_integration::{AcpHandle, AcpRunner, make_acp_tools, start_acp_servers};
 pub use agent_profile::AgentProfile;
 pub use config::{SessionOptions, ToolApprovalAdapter, ToolHookCallback, ToolHookDecision};
 #[cfg(feature = "docker")]
 pub use docker_sandbox::{DockerSandbox, DockerSandboxOptions};
 pub use error::{Error, InterruptReason, Result};
 pub use event::Emitter;
+pub use fabro_acp::config::AcpServerSettings;
 pub use fabro_mcp::config::McpServerSettings;
 pub use history::History;
 pub use local_sandbox::LocalSandbox;
